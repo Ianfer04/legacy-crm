@@ -5,12 +5,69 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LegacyCRM — Panel</title>
   <link rel="stylesheet" href="styles.css" />
+  
+  <style>
+    /* Estilos de la barra de progreso (Mejora 1: Chunking) */
+    .progress-container {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .progress-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--ok);
+      width: 33%;
+      transition: width 0.3s ease;
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .progress-labels span.active-label {
+      font-weight: 700;
+      color: var(--text);
+    }
+    .form-step {
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .step-nav {
+      margin-top: 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      grid-column: 1 / -1; 
+    }
+    .step-nav button {
+      min-width: 100px;
+    }
+    
+    /* Estilos para feedback positivo en campos flexibles (Mejora 2: Postel) */
+    .field.valid-input input {
+        border-color: var(--ok);
+    }
+  </style>
 </head>
 
 <body>
 <header>
   <div class="topbar">
-    <div class="brand">LegacyCRM <small>v0.1 (beta eterna)</small></div>
+    <div class="brand">LegacyCRM <small>v0.2 (Mejorado)</small></div>
     <input id="globalSearch" placeholder="Buscar... (no funciona bien)" />
     <div class="pill" id="btnSync">Sincronizar</div>
     <div class="pill ok" id="btnHelp">Ayuda</div>
@@ -29,7 +86,7 @@
       <a href="#reportes" data-route="reportes">Reportes <small>Exporta a ".csvv"</small></a>
     </nav>
 
-    <div class="friction" title="Indicador didáctico de fricción (sube con mala UX)">
+    <div class="friction" title="Indicador didáctico de fricción">
       <div class="meter"><i id="frictionBar"></i></div>
       <div class="txt" id="frictionTxt">Fricción: 8% (tolerable)</div>
     </div>
@@ -86,7 +143,7 @@
       <div class="card">
         <div class="hd">
           <h2>Registrar Cliente</h2>
-          <div class="meta">Formulario Optimizado (Agrupamiento)</div>
+          <div class="meta">Formulario Optimizado (Agrupamiento + Flexible)</div>
         </div>
         
         <div class="bd">
@@ -102,106 +159,110 @@
             </div>
 
           <p class="note">
-            Mejora DCU: Se aplicó la Ley de Miller dividiendo el proceso en 3 pasos para reducir la carga cognitiva.
+            Mejora DCU: Se aplica Agrupamiento (pasos) y Ley de Postel (entradas flexibles).
           </p>
 
           <div class="form" id="clientForm">
             
             <div id="step-1" class="form-step">
                 <h3>Paso 1: Identificación</h3>
+                
                 <div class="field">
-                <label>Nombre legal completo *</label>
-                <input id="c_name" placeholder="Ingrese exactamente como en documento" />
-                <div class="help">No use abreviaturas. No se admite "Ñ" a veces.</div>
+                    <label>Nombre legal completo *</label>
+                    <input id="c_name" placeholder="Ingrese nombre completo" />
+                    <div class="help" style="color:var(--ok)">✓ Admitimos tildes, Ñ y caracteres especiales.</div>
                 </div>
 
                 <div class="field">
-                <label>RFC/RUC/NIT/ID Fiscal *</label>
-                <input id="c_tax" placeholder="Ej: 0000000000000" />
-                <div class="help">Debe tener 13, 14 o 15 dígitos.</div>
+                    <label>RFC/RUC/NIT/ID Fiscal *</label>
+                    <input id="c_tax" placeholder="Ej: 0000000000000" />
+                    <div class="help">Debe tener 13, 14 o 15 dígitos.</div>
                 </div>
 
                 <div class="field">
-                <label>Industria (selección confusa) *</label>
-                <select id="c_industry">
-                    <option value="">Seleccione...</option>
-                    <option>Servicios varios (otros)</option>
-                    <option>Industria 4.0 (¿?)</option>
-                    <option>Comercio minorista pero no mayorista</option>
-                    <option>Comercio mayorista pero no minorista</option>
-                    <option>Educación (privada no pública)</option>
-                    <option>Educación (pública no privada)</option>
-                </select>
-                <div class="help">Si eliges mal, no se puede cambiar.</div>
+                    <label>Industria (selección confusa) *</label>
+                    <select id="c_industry">
+                        <option value="">Seleccione...</option>
+                        <option>Servicios varios (otros)</option>
+                        <option>Industria 4.0 (¿?)</option>
+                        <option>Comercio minorista pero no mayorista</option>
+                        <option>Comercio mayorista pero no minorista</option>
+                        <option>Educación (privada no pública)</option>
+                        <option>Educación (pública no privada)</option>
+                    </select>
+                    <div class="help">Si eliges mal, no se puede cambiar.</div>
                 </div>
 
                 <div class="field">
-                <label>Tipo de cliente *</label>
-                <select id="c_type">
-                    <option value="">Seleccione...</option>
-                    <option>VIP</option>
-                    <option>Normal</option>
-                    <option>Riesgo</option>
-                    <option>Prueba (bloquea facturación)</option>
-                </select>
+                    <label>Tipo de cliente *</label>
+                    <select id="c_type">
+                        <option value="">Seleccione...</option>
+                        <option>VIP</option>
+                        <option>Normal</option>
+                        <option>Riesgo</option>
+                        <option>Prueba (bloquea facturación)</option>
+                    </select>
                 </div>
 
                 <div class="actions step-nav">
-                    <div></div> <button class="primary" onclick="changeStep(2)">Siguiente ➜</button>
+                    <div></div> 
+                    <button class="primary" type="button" onclick="changeStep(2)">Siguiente ➜</button>
                 </div>
             </div>
 
             <div id="step-2" class="form-step" style="display:none;">
                 <h3>Paso 2: Localización</h3>
                 <div class="field">
-                <label>Correo corporativo obligatorio *</label>
-                <input id="c_email" placeholder="name@empresa.com (no gmail)" />
-                <div class="help">Rechazamos correos personales.</div>
+                    <label>Correo corporativo obligatorio *</label>
+                    <input id="c_email" placeholder="name@empresa.com (no gmail)" />
+                    <div class="help">Rechazamos correos personales.</div>
                 </div>
 
                 <div class="field">
-                <label>Teléfono (solo formato E.164) *</label>
-                <input id="c_phone" placeholder="+593xxxxxxxxx" />
-                <div class="help">Si no sabes E.164, mala suerte.</div>
+                    <label>Teléfono (Flexible) *</label>
+                    <input id="c_phone" placeholder="Ej: 099 123 4567 (espacios/guiones ok)" />
+                    <div class="help" style="color:var(--ok)">✓ Escriba como quiera (nosotros lo formateamos).</div>
                 </div>
 
                 <div class="field">
-                <label>Dirección (mín. 120 caracteres) *</label>
-                <textarea id="c_address" placeholder="Calle, número, referencia, sector, etc..."></textarea>
-                <div class="help">Si no tienes 120 caracteres, inventa.</div>
+                    <label>Dirección (mín. 120 caracteres) *</label>
+                    <textarea id="c_address" placeholder="Calle, número, referencia, sector, etc..."></textarea>
+                    <div class="help">Si no tienes 120 caracteres, inventa.</div>
                 </div>
 
                 <div class="actions step-nav">
-                    <button onclick="changeStep(1)">⬅ Atrás</button>
-                    <button class="primary" onclick="changeStep(3)">Siguiente ➜</button>
+                    <button class="secondary" type="button" onclick="changeStep(1)">⬅ Atrás</button>
+                    <button class="primary" type="button" onclick="changeStep(3)">Siguiente ➜</button>
                 </div>
             </div>
 
             <div id="step-3" class="form-step" style="display:none;">
                 <h3>Paso 3: Detalles Finales</h3>
                 <div class="field">
-                <label>Notas internas (obligatorio) *</label>
-                <textarea id="c_notes" placeholder="Escribe algo (lo que sea)"></textarea>
+                    <label>Notas internas (obligatorio) *</label>
+                    <textarea id="c_notes" placeholder="Escribe algo (lo que sea)"></textarea>
                 </div>
 
                 <div class="field">
-                <label>Consentimiento (checkbox escondido) *</label>
-                <input id="c_consent" type="checkbox" style="width:auto; transform:scale(1.1)" />
-                <div class="help">Si no marcas esto, falla al final sin decirte por qué.</div>
+                    <label>Consentimiento (checkbox escondido) *</label>
+                    <div style="display:flex; align-items:center; gap:10px; padding:5px;">
+                        <input id="c_consent" type="checkbox" style="width:auto; transform:scale(1.2)" />
+                        <span style="font-size:11px; color:var(--muted)">Acepto condiciones</span>
+                    </div>
                 </div>
 
                 <div class="field">
-                <label>Captcha anti-humanos *</label>
-                <input id="c_captcha" placeholder="¿Cuánto es 7+5? (a veces cambia)" />
-                <div class="help">Pregunta cambia cuando presionas "Enviar".</div>
+                    <label>Captcha anti-humanos *</label>
+                    <input id="c_captcha" placeholder="¿Cuánto es 7+5? (a veces cambia)" />
+                    <div class="help">Pregunta cambia cuando presionas "Enviar".</div>
                 </div>
 
                 <div class="actions step-nav" style="display:block;">
-                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button onclick="changeStep(2)" style="margin-right:auto;">⬅ Atrás</button>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items: center;">
+                        <button class="secondary" type="button" onclick="changeStep(2)" style="margin-right:auto;">⬅ Atrás</button>
                         <button id="btnCancelClient" class="danger">Cancelar</button>
-                        <button id="btnSubmitClient" class="primary">Enviar</button>
                         <button id="btnPrintClient">Imprimir</button>
+                        <button id="btnSubmitClient" class="primary">Enviar</button>
                     </div>
                 </div>
             </div>
