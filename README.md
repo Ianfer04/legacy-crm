@@ -1,143 +1,38 @@
-# 📊 LegacyCRM — Caso de Estudio UX / DCU
+# LegacyCRM - Refactorización de UX/UI
 
-## Descripción general
+Este proyecto mejora el módulo "Registrar Cliente" de una aplicación Legacy, aplicando principios de Diseño Centrado en el Usuario (DCU) para corregir problemas graves de usabilidad.
 
-**LegacyCRM** es una **aplicación web tipo CRM diseñada intencionalmente con mala experiencia de usuario**.  
-Su objetivo **NO es ser un buen producto**, sino servir como **caso de estudio académico** para analizar:
-
-- Abandono de usuarios  
-- Fricción en interfaces  
-- Falta de Diseño Centrado en el Usuario (DCU)  
-- Consecuencias de ignorar principios de usabilidad  
-
-Esta aplicación se utiliza en una **dinámica de juego de rol** donde los estudiantes asumen distintos papeles (cliente y desarrollador) para **detectar problemas, proponer mejoras y luego implementarlas**.
+A continuación se detallan las 3 mejoras principales implementadas:
 
 ---
 
-## 🎯 Objetivo pedagógico
+### 1. Aplicación de Agrupamiento (Chunking)
+**Principio:** Ley de Miller & Reducción de Carga Cognitiva.
 
-Al trabajar con esta aplicación, el estudiante será capaz de:
+* **El Problema:** El formulario original mostraba todos los campos (más de 10) en una sola pantalla larga, causando saturación mental al usuario.
+* **La Mejora:**
+    * Se dividió el proceso en **3 pasos lógicos**: Identificación, Contacto y Finalización.
+    * Se añadió una **barra de progreso visual** para mantener al usuario informado sobre su avance.
+* **Resultado:** Facilita el escaneo de información y reduce la sensación de agobio.
 
-- Identificar problemas de usabilidad reales  
-- Analizar causas de abandono de usuarios  
-- Aplicar el proceso de Diseño Centrado en el Usuario  
-- Proponer mejoras justificadas  
-- Implementar cambios concretos en HTML, CSS y JavaScript  
+### 2. Flexibilidad en Campos de Entrada
+**Principio:** Ley de Postel ("Sé liberal en lo que aceptas").
 
----
+* **El Problema:** El sistema era rígido, rechazando nombres con "Ñ" o tildes, y exigiendo un formato de teléfono exacto, lo que generaba errores frustrantes.
+* **La Mejora:**
+    * **Validación Permisiva:** Ahora se acepta el ingreso de teléfonos con espacios, guiones o paréntesis. El sistema se encarga de limpiarlos internamente (sanitización) en lugar de culpar al usuario.
+    * **Soporte extendido:** Se eliminaron las restricciones de caracteres para soportar nombres reales en español.
+* **Resultado:** Una interacción más fluida y menos propensa a errores de validación técnica.
 
-## 🧠 Enfoque del caso de estudio
+### 3. Jerarquía Visual y Ley de Fitts
+**Principio:** Ley de Fitts & Prevención de Errores.
 
-⚠️ **Advertencia**  
-Esta interfaz está diseñada para ser **frustrante a propósito**.  
-Muchos comportamientos que verás aquí **NO deben replicarse en proyectos reales**.
-
-La aplicación viola principios clave como:
-- Claridad  
-- Consistencia  
-- Feedback adecuado  
-- Control del usuario  
-- Prevención de errores  
-
----
-
-## 🧩 Tecnologías utilizadas
-
-- HTML5  
-- CSS3  
-- JavaScript (Vanilla)  
-- Sin frameworks  
-- Sin backend (simulación local)
+* **El Problema:** El botón "Guardar" estaba escondido y era pequeño (difícil de alcanzar), mientras que el botón "Cancelar" era rojo y muy llamativo, provocando clics accidentales que borraban todo.
+* **La Mejora:**
+    * **Botón Héroe:** El botón de acción principal ("Guardar Cliente") ahora es grande, de color verde y está ubicado al final del flujo, maximizando la facilidad de clic.
+    * **Protección contra errores:** El botón "Cancelar" se convirtió en un enlace de texto discreto, reduciendo la probabilidad de que el usuario lo presione por error.
+* **Resultado:** Mayor velocidad operativa y drástica reducción de errores fatales (pérdida de datos).
 
 ---
 
-## 🚀 Cómo ejecutar la aplicación
-
-1. Descargar o copiar el archivo `index.html`  
-2. Abrirlo directamente en cualquier navegador moderno  
-3. No se requiere servidor ni instalación adicional  
-
----
-
-## 🧭 Módulos del CRM
-
-### Dashboard
-- Alertas ambiguas  
-- Información poco clara  
-
-### Clientes
-- Formularios extensos y confusos  
-- Validación tardía  
-- Botón de guardado escondido  
-
-### Oportunidades
-- Pipeline poco claro  
-- Acciones ambiguas  
-
-### Configuración
-- Opciones peligrosas  
-- Cambios irreversibles  
-
-### Reportes
-- Sin filtros claros  
-- Tiempos de carga largos  
-
----
-
-## ❌ Features diseñados para generar abandono
-
-- Formularios largos  
-- Validaciones al final  
-- Mensajes de error genéricos  
-- Captchas cambiantes  
-- Cierre de sesión automático excesivo  
-- Modales intrusivos  
-- Falta de feedback claro  
-
----
-
-## 📉 Indicador de fricción (didáctico)
-
-La aplicación incluye un **medidor de fricción** que aumenta cuando el usuario enfrenta problemas de usabilidad.  
-Cuando la fricción supera cierto umbral, se simula **abandono del usuario**.
-
----
-
-## 🎭 Dinámica de juego de rol
-
-### Roles
-
-- **Cliente / Product Owner**  
-- **Desarrollador / Equipo UX**
-
----
-
-## 📝 Actividad obligatoria
-
-### Parte 1: Análisis
-- Identificar al menos 5 problemas de usabilidad  
-
-### Parte 2: Propuesta
-- Proponer 3 mejoras justificadas desde el DCU  
-
-### Parte 3: Implementación
-- Implementar las mejoras en el código  
-
----
-
-## 📚 Relación con Diseño Centrado en el Usuario
-
-Este caso permite aplicar:
-- Investigación del contexto  
-- Definición de problemas  
-- Ideación  
-- Prototipado  
-- Evaluación  
-- Iteración  
-
----
-
-## ⚠️ Nota final
-
-Esta aplicación **no representa buenas prácticas**.  
-Su valor académico está en **todo lo que hace mal**, para aprender a hacerlo bien.
+**Nota:** El resto de la aplicación (Dashboard, Reportes, etc.) mantiene intencionalmente la "Mala UX" original para fines demostrativos de contraste.
