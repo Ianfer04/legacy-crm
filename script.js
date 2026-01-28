@@ -191,6 +191,9 @@ function resetClientFormHard(){
   $("#c_industry").value = "";
   $("#c_type").value = "";
   $("#c_consent").checked = false;
+  
+  // ADD: Regresar al paso 1 al resetear
+  changeStep(1);
 }
 
 function simulateSlowTask(label="Procesando..."){
@@ -414,6 +417,56 @@ function init(){
       addFriction(2, "Sistema no guía de forma adecuada.");
     }
   }, 12000);
+}
+
+/* =========================================================
+   NUEVA LÓGICA: CONTROL DE PASOS DEL FORMULARIO
+   ========================================================= */
+
+let currentStep = 1;
+
+window.changeStep = function(step) {
+  // 1. Ocultar todos los pasos
+  document.querySelectorAll('.form-step').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  // 2. Mostrar el paso actual
+  const activeStep = document.getElementById('step-' + step);
+  if (activeStep) {
+    activeStep.style.display = 'block';
+  }
+
+  // 3. Actualizar estado interno
+  currentStep = step;
+
+  // 4. Actualizar Barra de Progreso
+  updateProgressBar(step);
+};
+
+function updateProgressBar(step) {
+  const bar = document.getElementById('progressBar');
+  const labels = document.querySelectorAll('.progress-labels span');
+  
+  // Calcular porcentaje (3 pasos)
+  let percentage = 33;
+  if (step === 2) percentage = 66;
+  if (step === 3) percentage = 100;
+
+  bar.style.width = percentage + '%';
+
+  // Actualizar negritas en los labels
+  labels.forEach((label, index) => {
+    if (index + 1 === step) {
+      label.classList.add('active-label');
+      label.style.fontWeight = 'bold';
+      label.style.color = '#333';
+    } else {
+      label.classList.remove('active-label');
+      label.style.fontWeight = 'normal';
+      label.style.color = '#999';
+    }
+  });
 }
 
 init();

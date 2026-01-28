@@ -40,7 +40,6 @@
   </aside>
 
   <main>
-    <!-- DASHBOARD -->
     <section id="view-dashboard" class="view">
       <div class="grid">
         <div class="card">
@@ -83,100 +82,130 @@
       </div>
     </section>
 
-    <!-- CLIENTES -->
     <section id="view-clientes" class="view" style="display:none">
       <div class="card">
         <div class="hd">
-          <h2>Registrar Cliente (formulario eterno)</h2>
-          <div class="meta">Campos obligatorios: <strong>casi todos</strong></div>
+          <h2>Registrar Cliente</h2>
+          <div class="meta">Formulario Optimizado (Agrupamiento)</div>
         </div>
+        
         <div class="bd">
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+              </div>
+              <div class="progress-labels">
+                <span class="active-label">1. Datos Personales</span>
+                <span>2. Contacto</span>
+                <span>3. Configuración</span>
+              </div>
+            </div>
 
           <p class="note">
-            Este formulario genera abandono: demasiados campos, lenguaje técnico, validación tardía y poca guía.
+            Mejora DCU: Se aplicó la Ley de Miller dividiendo el proceso en 3 pasos para reducir la carga cognitiva.
           </p>
 
           <div class="form" id="clientForm">
-            <div class="field">
-              <label>Nombre legal completo *</label>
-              <input id="c_name" placeholder="Ingrese exactamente como en documento" />
-              <div class="help">No use abreviaturas. No se admite "Ñ" a veces.</div>
+            
+            <div id="step-1" class="form-step">
+                <h3>Paso 1: Identificación</h3>
+                <div class="field">
+                <label>Nombre legal completo *</label>
+                <input id="c_name" placeholder="Ingrese exactamente como en documento" />
+                <div class="help">No use abreviaturas. No se admite "Ñ" a veces.</div>
+                </div>
+
+                <div class="field">
+                <label>RFC/RUC/NIT/ID Fiscal *</label>
+                <input id="c_tax" placeholder="Ej: 0000000000000" />
+                <div class="help">Debe tener 13, 14 o 15 dígitos.</div>
+                </div>
+
+                <div class="field">
+                <label>Industria (selección confusa) *</label>
+                <select id="c_industry">
+                    <option value="">Seleccione...</option>
+                    <option>Servicios varios (otros)</option>
+                    <option>Industria 4.0 (¿?)</option>
+                    <option>Comercio minorista pero no mayorista</option>
+                    <option>Comercio mayorista pero no minorista</option>
+                    <option>Educación (privada no pública)</option>
+                    <option>Educación (pública no privada)</option>
+                </select>
+                <div class="help">Si eliges mal, no se puede cambiar.</div>
+                </div>
+
+                <div class="field">
+                <label>Tipo de cliente *</label>
+                <select id="c_type">
+                    <option value="">Seleccione...</option>
+                    <option>VIP</option>
+                    <option>Normal</option>
+                    <option>Riesgo</option>
+                    <option>Prueba (bloquea facturación)</option>
+                </select>
+                </div>
+
+                <div class="actions step-nav">
+                    <div></div> <button class="primary" onclick="changeStep(2)">Siguiente ➜</button>
+                </div>
             </div>
 
-            <div class="field">
-              <label>RFC/RUC/NIT/ID Fiscal *</label>
-              <input id="c_tax" placeholder="Ej: 0000000000000" />
-              <div class="help">Debe tener 13, 14 o 15 dígitos (depende del humor del sistema).</div>
+            <div id="step-2" class="form-step" style="display:none;">
+                <h3>Paso 2: Localización</h3>
+                <div class="field">
+                <label>Correo corporativo obligatorio *</label>
+                <input id="c_email" placeholder="name@empresa.com (no gmail)" />
+                <div class="help">Rechazamos correos personales.</div>
+                </div>
+
+                <div class="field">
+                <label>Teléfono (solo formato E.164) *</label>
+                <input id="c_phone" placeholder="+593xxxxxxxxx" />
+                <div class="help">Si no sabes E.164, mala suerte.</div>
+                </div>
+
+                <div class="field">
+                <label>Dirección (mín. 120 caracteres) *</label>
+                <textarea id="c_address" placeholder="Calle, número, referencia, sector, etc..."></textarea>
+                <div class="help">Si no tienes 120 caracteres, inventa.</div>
+                </div>
+
+                <div class="actions step-nav">
+                    <button onclick="changeStep(1)">⬅ Atrás</button>
+                    <button class="primary" onclick="changeStep(3)">Siguiente ➜</button>
+                </div>
             </div>
 
-            <div class="field">
-              <label>Correo corporativo obligatorio *</label>
-              <input id="c_email" placeholder="name@empresa.com (no gmail)" />
-              <div class="help">Rechazamos correos personales.</div>
+            <div id="step-3" class="form-step" style="display:none;">
+                <h3>Paso 3: Detalles Finales</h3>
+                <div class="field">
+                <label>Notas internas (obligatorio) *</label>
+                <textarea id="c_notes" placeholder="Escribe algo (lo que sea)"></textarea>
+                </div>
+
+                <div class="field">
+                <label>Consentimiento (checkbox escondido) *</label>
+                <input id="c_consent" type="checkbox" style="width:auto; transform:scale(1.1)" />
+                <div class="help">Si no marcas esto, falla al final sin decirte por qué.</div>
+                </div>
+
+                <div class="field">
+                <label>Captcha anti-humanos *</label>
+                <input id="c_captcha" placeholder="¿Cuánto es 7+5? (a veces cambia)" />
+                <div class="help">Pregunta cambia cuando presionas "Enviar".</div>
+                </div>
+
+                <div class="actions step-nav" style="display:block;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button onclick="changeStep(2)" style="margin-right:auto;">⬅ Atrás</button>
+                        <button id="btnCancelClient" class="danger">Cancelar</button>
+                        <button id="btnSubmitClient" class="primary">Enviar</button>
+                        <button id="btnPrintClient">Imprimir</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="field">
-              <label>Teléfono (solo formato E.164) *</label>
-              <input id="c_phone" placeholder="+593xxxxxxxxx" />
-              <div class="help">Si no sabes E.164, mala suerte.</div>
-            </div>
-
-            <div class="field">
-              <label>Industria (selección confusa) *</label>
-              <select id="c_industry">
-                <option value="">Seleccione...</option>
-                <option>Servicios varios (otros)</option>
-                <option>Industria 4.0 (¿?)</option>
-                <option>Comercio minorista pero no mayorista</option>
-                <option>Comercio mayorista pero no minorista</option>
-                <option>Educación (privada no pública)</option>
-                <option>Educación (pública no privada)</option>
-              </select>
-              <div class="help">Si eliges mal, no se puede cambiar.</div>
-            </div>
-
-            <div class="field">
-              <label>Tipo de cliente *</label>
-              <select id="c_type">
-                <option value="">Seleccione...</option>
-                <option>VIP</option>
-                <option>Normal</option>
-                <option>Riesgo</option>
-                <option>Prueba (bloquea facturación)</option>
-              </select>
-              <div class="help">No explicamos qué significa cada uno.</div>
-            </div>
-
-            <div class="field">
-              <label>Dirección (mín. 120 caracteres) *</label>
-              <textarea id="c_address" placeholder="Calle, número, referencia, sector, etc..."></textarea>
-              <div class="help">Si no tienes 120 caracteres, inventa.</div>
-            </div>
-
-            <div class="field">
-              <label>Notas internas (obligatorio) *</label>
-              <textarea id="c_notes" placeholder="Escribe algo (lo que sea)"></textarea>
-              <div class="help">Campo obligatorio aunque no tenga sentido.</div>
-            </div>
-
-            <div class="field">
-              <label>Consentimiento (checkbox escondido) *</label>
-              <input id="c_consent" type="checkbox" style="width:auto; transform:scale(1.1)" />
-              <div class="help">Si no marcas esto, falla al final sin decirte por qué.</div>
-            </div>
-
-            <div class="field">
-              <label>Captcha anti-humanos *</label>
-              <input id="c_captcha" placeholder="¿Cuánto es 7+5? (a veces cambia)" />
-              <div class="help">Pregunta cambia cuando presionas "Enviar".</div>
-            </div>
-          </div>
-
-          <!-- Botones que no ayudan -->
-          <div class="actions">
-            <button id="btnCancelClient" class="danger">Cancelar (borra todo)</button>
-            <button id="btnSubmitClient" class="primary">Enviar (puede fallar)</button>
-            <button id="btnPrintClient">Imprimir</button>
           </div>
 
           <p class="note" style="margin-top:10px">
@@ -186,7 +215,6 @@
       </div>
     </section>
 
-    <!-- OPORTUNIDADES -->
     <section id="view-oportunidades" class="view" style="display:none">
       <div class="card">
         <div class="hd">
@@ -211,7 +239,6 @@
       </div>
     </section>
 
-    <!-- CONFIG -->
     <section id="view-config" class="view" style="display:none">
       <div class="card">
         <div class="hd">
@@ -250,7 +277,6 @@
       </div>
     </section>
 
-    <!-- REPORTES -->
     <section id="view-reportes" class="view" style="display:none">
       <div class="card">
         <div class="hd">
@@ -270,19 +296,16 @@
       </div>
     </section>
 
-    <!-- Botón "Guardar" escondido -->
     <button class="hidden-save" id="btnHiddenSave" title="Guardar (¿?)">💾 Guardar</button>
   </main>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast">
   <strong id="toastTitle">Aviso</strong>
   <p id="toastMsg">Mensaje confuso.</p>
   <div class="bar"><i></i></div>
 </div>
 
-<!-- Modal (intrusivo) -->
 <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true">
     <div class="hd">
