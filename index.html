@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="styles.css" />
   
   <style>
-    /* Estilos de la barra de progreso (Mejora 1: Chunking) */
+    /* MEJORA 1: Agrupamiento (Barra de progreso) */
     .progress-container {
       margin-bottom: 20px;
       padding: 15px;
@@ -51,15 +51,84 @@
       padding-top: 15px;
       display: flex;
       justify-content: space-between;
-      grid-column: 1 / -1; 
+      align-items: center;
     }
-    .step-nav button {
-      min-width: 100px;
+
+    /* MEJORA 2: Ley de Postel (Feedback visual) */
+    .field input:focus, .field textarea:focus {
+        border-color: var(--link);
+    }
+
+    /* MEJORA 3: Ley de Fitts (Jerarquía Visual y Botones) */
+    .final-actions {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
     }
     
-    /* Estilos para feedback positivo en campos flexibles (Mejora 2: Postel) */
-    .field.valid-input input {
-        border-color: var(--ok);
+    /* Botón Héroe (Guardar): Grande y fácil de clicar */
+    .btn-hero {
+        width: 100%;
+        padding: 15px 25px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: var(--ok);
+        color: #0e1220;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(55, 214, 122, 0.4);
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .btn-hero:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(55, 214, 122, 0.6);
+        background: #4af28f;
+    }
+
+    /* Botón Texto (Cancelar): Discreto para evitar errores */
+    .btn-text {
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        text-decoration: underline;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 10px;
+    }
+    .btn-text:hover {
+        color: var(--danger);
+    }
+
+    @media (min-width: 600px) {
+        .final-actions {
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .btn-hero {
+            width: auto;
+            min-width: 220px;
+            order: 2;
+        }
+        .btn-text {
+            order: 1;
+        }
+        .step-buttons-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            order: 2;
+        }
     }
   </style>
 </head>
@@ -67,7 +136,7 @@
 <body>
 <header>
   <div class="topbar">
-    <div class="brand">LegacyCRM <small>v0.2 (Mejorado)</small></div>
+    <div class="brand">LegacyCRM <small>v0.3 (Mejorado)</small></div>
     <input id="globalSearch" placeholder="Buscar... (no funciona bien)" />
     <div class="pill" id="btnSync">Sincronizar</div>
     <div class="pill ok" id="btnHelp">Ayuda</div>
@@ -80,13 +149,13 @@
     <nav class="menu" id="menu">
       <h3>Menú</h3>
       <a href="#dashboard" data-route="dashboard" class="active">Dashboard <small>Resumen confuso</small></a>
-      <a href="#clientes" data-route="clientes">Clientes <small>Alta fricción</small></a>
+      <a href="#clientes" data-route="clientes">Clientes <small>Optimizado</small></a>
       <a href="#oportunidades" data-route="oportunidades">Oportunidades <small>Campos innecesarios</small></a>
       <a href="#config" data-route="config">Configuración <small>Opciones raras</small></a>
       <a href="#reportes" data-route="reportes">Reportes <small>Exporta a ".csvv"</small></a>
     </nav>
 
-    <div class="friction" title="Indicador didáctico de fricción">
+    <div class="friction" title="Indicador didáctico de fricción (sube con mala UX)">
       <div class="meter"><i id="frictionBar"></i></div>
       <div class="txt" id="frictionTxt">Fricción: 8% (tolerable)</div>
     </div>
@@ -143,34 +212,33 @@
       <div class="card">
         <div class="hd">
           <h2>Registrar Cliente</h2>
-          <div class="meta">Formulario Optimizado (Agrupamiento + Flexible)</div>
+          <div class="meta">Mejoras: Agrupamiento + Postel + Fitts</div>
         </div>
-        
         <div class="bd">
-            <div class="progress-container">
-              <div class="progress-bar">
-                <div class="progress-fill" id="progressBar"></div>
-              </div>
-              <div class="progress-labels">
-                <span class="active-label">1. Datos Personales</span>
-                <span>2. Contacto</span>
-                <span>3. Configuración</span>
-              </div>
+
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressBar"></div>
             </div>
+            <div class="progress-labels">
+              <span class="active-label">1. Datos</span>
+              <span>2. Contacto</span>
+              <span>3. Finalizar</span>
+            </div>
+          </div>
 
           <p class="note">
-            Mejora DCU: Se aplica Agrupamiento (pasos) y Ley de Postel (entradas flexibles).
+            Formulario optimizado para reducir carga cognitiva y errores.
           </p>
 
           <div class="form" id="clientForm">
             
             <div id="step-1" class="form-step">
-                <h3>Paso 1: Identificación</h3>
-                
+                <h3>Paso 1: Datos de la Entidad</h3>
                 <div class="field">
                     <label>Nombre legal completo *</label>
                     <input id="c_name" placeholder="Ingrese nombre completo" />
-                    <div class="help" style="color:var(--ok)">✓ Admitimos tildes, Ñ y caracteres especiales.</div>
+                    <div class="help" style="color:var(--ok)">✓ Admitimos caracteres especiales (Ñ, tildes).</div>
                 </div>
 
                 <div class="field">
@@ -180,17 +248,15 @@
                 </div>
 
                 <div class="field">
-                    <label>Industria (selección confusa) *</label>
+                    <label>Industria *</label>
                     <select id="c_industry">
                         <option value="">Seleccione...</option>
-                        <option>Servicios varios (otros)</option>
-                        <option>Industria 4.0 (¿?)</option>
-                        <option>Comercio minorista pero no mayorista</option>
-                        <option>Comercio mayorista pero no minorista</option>
-                        <option>Educación (privada no pública)</option>
-                        <option>Educación (pública no privada)</option>
+                        <option>Servicios varios</option>
+                        <option>Industria 4.0</option>
+                        <option>Comercio minorista</option>
+                        <option>Comercio mayorista</option>
+                        <option>Educación</option>
                     </select>
-                    <div class="help">Si eliges mal, no se puede cambiar.</div>
                 </div>
 
                 <div class="field">
@@ -200,78 +266,73 @@
                         <option>VIP</option>
                         <option>Normal</option>
                         <option>Riesgo</option>
-                        <option>Prueba (bloquea facturación)</option>
+                        <option>Prueba</option>
                     </select>
                 </div>
 
                 <div class="actions step-nav">
-                    <div></div> 
-                    <button class="primary" type="button" onclick="changeStep(2)">Siguiente ➜</button>
+                    <div></div> <button class="primary" onclick="changeStep(2)">Siguiente ➜</button>
                 </div>
             </div>
 
             <div id="step-2" class="form-step" style="display:none;">
-                <h3>Paso 2: Localización</h3>
+                <h3>Paso 2: Información de Contacto</h3>
                 <div class="field">
-                    <label>Correo corporativo obligatorio *</label>
-                    <input id="c_email" placeholder="name@empresa.com (no gmail)" />
-                    <div class="help">Rechazamos correos personales.</div>
+                    <label>Correo corporativo *</label>
+                    <input id="c_email" placeholder="name@empresa.com" />
+                    <div class="help">Rechazamos correos personales (gmail).</div>
                 </div>
 
                 <div class="field">
                     <label>Teléfono (Flexible) *</label>
-                    <input id="c_phone" placeholder="Ej: 099 123 4567 (espacios/guiones ok)" />
-                    <div class="help" style="color:var(--ok)">✓ Escriba como quiera (nosotros lo formateamos).</div>
+                    <input id="c_phone" placeholder="Ej: 099 123 4567" />
+                    <div class="help" style="color:var(--ok)">✓ Escriba como quiera (nosotros formateamos).</div>
                 </div>
 
                 <div class="field">
                     <label>Dirección (mín. 120 caracteres) *</label>
                     <textarea id="c_address" placeholder="Calle, número, referencia, sector, etc..."></textarea>
-                    <div class="help">Si no tienes 120 caracteres, inventa.</div>
                 </div>
 
                 <div class="actions step-nav">
-                    <button class="secondary" type="button" onclick="changeStep(1)">⬅ Atrás</button>
-                    <button class="primary" type="button" onclick="changeStep(3)">Siguiente ➜</button>
+                    <button class="secondary" onclick="changeStep(1)">⬅ Atrás</button>
+                    <button class="primary" onclick="changeStep(3)">Siguiente ➜</button>
                 </div>
             </div>
 
             <div id="step-3" class="form-step" style="display:none;">
-                <h3>Paso 3: Detalles Finales</h3>
+                <h3>Paso 3: Confirmación</h3>
                 <div class="field">
                     <label>Notas internas (obligatorio) *</label>
-                    <textarea id="c_notes" placeholder="Escribe algo (lo que sea)"></textarea>
+                    <textarea id="c_notes" placeholder="Escribe algo..."></textarea>
                 </div>
 
                 <div class="field">
-                    <label>Consentimiento (checkbox escondido) *</label>
+                    <label>Consentimiento *</label>
                     <div style="display:flex; align-items:center; gap:10px; padding:5px;">
                         <input id="c_consent" type="checkbox" style="width:auto; transform:scale(1.2)" />
-                        <span style="font-size:11px; color:var(--muted)">Acepto condiciones</span>
+                        <span style="font-size:11px; color:var(--muted)">He leído y acepto los términos.</span>
                     </div>
                 </div>
 
                 <div class="field">
-                    <label>Captcha anti-humanos *</label>
-                    <input id="c_captcha" placeholder="¿Cuánto es 7+5? (a veces cambia)" />
-                    <div class="help">Pregunta cambia cuando presionas "Enviar".</div>
+                    <label>Captcha *</label>
+                    <input id="c_captcha" placeholder="Resuelva la suma..." />
                 </div>
 
-                <div class="actions step-nav" style="display:block;">
-                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items: center;">
-                        <button class="secondary" type="button" onclick="changeStep(2)" style="margin-right:auto;">⬅ Atrás</button>
-                        <button id="btnCancelClient" class="danger">Cancelar</button>
-                        <button id="btnPrintClient">Imprimir</button>
-                        <button id="btnSubmitClient" class="primary">Enviar</button>
+                <div class="final-actions">
+                    <button id="btnCancelClient" class="btn-text">Cancelar operación</button>
+                    
+                    <div class="step-buttons-group">
+                        <button class="secondary" onclick="changeStep(2)">⬅ Atrás</button>
+                        <button id="btnSubmitClient" class="btn-hero">
+                            <span>💾 Guardar Cliente</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
           </div>
-
-          <p class="note" style="margin-top:10px">
-            *El botón real de "Guardar" está escondido abajo a la derecha (mala práctica intencional).
-          </p>
         </div>
       </div>
     </section>
@@ -357,8 +418,7 @@
       </div>
     </section>
 
-    <button class="hidden-save" id="btnHiddenSave" title="Guardar (¿?)">💾 Guardar</button>
-  </main>
+    </main>
 </div>
 
 <div class="toast" id="toast">

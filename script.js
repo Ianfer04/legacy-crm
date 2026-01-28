@@ -1,5 +1,7 @@
 /* =========================================================
-  LEGACY CRM — JS (Con mejoras UX: Chunking + Postel)
+  LEGACY CRM — JS (Con Mejoras UX: Chunking + Postel + Fitts)
+  Objetivo original: provocar fricción.
+  Objetivo actual: Mejorar Clientes sin romper lo demás.
 ========================================================= */
 
 const state = {
@@ -95,20 +97,40 @@ function seedTables(){
     `;
     tb.appendChild(tr);
   });
+
+  const opps = [
+    ["Acme S.A.", "$12,000", "30%", "Prospección", "Editar | Cerrar | ???"],
+    ["NovaRetail", "$1,500", "80%", "Negociación", "Editar | Cerrar | ???"],
+    ["EduPlus", "$7,200", "15%", "Calificación", "Editar | Cerrar | ???"],
+    ["LogiTruck", "$42,000", "55%", "Propuesta", "Editar | Cerrar | ???"]
+  ];
+  const ob = $("#oppsTbody");
+  ob.innerHTML = "";
+  opps.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r[0]} <div class="tag warn">sin seguimiento</div></td>
+      <td>${r[1]}</td>
+      <td>${r[2]}</td>
+      <td>${r[3]}</td>
+      <td style="color:var(--muted)">${r[4]}</td>
+    `;
+    ob.appendChild(tr);
+  });
 }
 
 function randomFail(prob=0.25){
   return Math.random() < prob;
 }
 
-/* ========================================================
-   MEJORA POSTEL: VALIDACIÓN TOLERANTE
-   ======================================================== */
+/* =========================================================
+   MEJORA 2: VALIDACIÓN TOLERANTE (LEY DE POSTEL)
+   ========================================================= */
 function validateClientForm(){
   const name = $("#c_name").value.trim();
   const tax  = $("#c_tax").value.trim();
   const email= $("#c_email").value.trim();
-  const phoneRaw = $("#c_phone").value.trim(); // Entrada cruda del usuario
+  const phoneRaw = $("#c_phone").value.trim(); // Raw input
   const industry = $("#c_industry").value.trim();
   const type = $("#c_type").value.trim();
   const address = $("#c_address").value.trim();
@@ -118,35 +140,27 @@ function validateClientForm(){
 
   const errors = [];
 
-  // LEY DE POSTEL (NOMBRE): 
-  // Antes: No se admitía Ñ. Ahora: Se acepta UTF-8 (solo validamos longitud mínima).
+  // POSTEL: Nombre flexible
   if(name.length < 2) errors.push("Nombre muy corto.");
 
-  // LEY DE POSTEL (TELÉFONO): "Sé liberal en lo que aceptas"
-  // Paso 1: Limpiar la entrada (Sanitización)
-  // Eliminamos espacios, guiones, paréntesis. Dejamos dígitos y el signo +
+  // POSTEL: Limpieza de teléfono
   const phoneClean = phoneRaw.replace(/[^0-9+]/g, '');
-
-  // Paso 2: Validar el dato limpio en lugar del dato crudo
-  // Si tiene al menos 7 dígitos, lo damos por válido.
   if(phoneClean.length < 7){
-    errors.push("Teléfono inválido (revise los números).");
+    errors.push("Teléfono inválido (mínimo 7 dígitos).");
   } else {
-    // Simulamos que el sistema "guarda" la versión limpia
-    console.log("Teléfono saneado para DB:", phoneClean);
+    console.log("Teléfono saneado:", phoneClean);
   }
 
-  // Resto de validaciones (aún tóxicas porque así es el ejercicio)
+  // Validaciones estándar
   if(!/^\d{13,15}$/.test(tax)) errors.push("ID fiscal inválido.");
   if(!email.includes("@") || email.endsWith("@gmail.com")) errors.push("Correo corporativo requerido (sin gmail).");
-  
   if(!industry) errors.push("Industria no seleccionada.");
   if(!type) errors.push("Tipo de cliente no seleccionado.");
   if(address.length < 120) errors.push("Dirección demasiado corta (<120).");
   if(notes.length < 8) errors.push("Notas internas insuficientes.");
-  if(!consent) errors.push("Falta consentimiento.");
+  if(!consent) errors.push("Debe aceptar el consentimiento.");
 
-  // Captcha cambia cuando envías
+  // Captcha
   const expected = state.captchaAnswer;
   const parsed = Number(captcha);
   if(!Number.isFinite(parsed) || parsed !== expected){
@@ -160,7 +174,7 @@ function rotateCaptcha(){
   const a = Math.floor(3 + Math.random()*9);
   const b = Math.floor(3 + Math.random()*9);
   state.captchaAnswer = a + b;
-  $("#c_captcha").placeholder = `¿Cuánto es ${a}+${b}? (a veces cambia)`;
+  $("#c_captcha").placeholder = `¿Cuánto es ${a}+${b}?`;
 }
 
 function showModalSurvey(force=false){
@@ -185,7 +199,7 @@ function resetClientFormHard(){
   $("#c_type").value = "";
   $("#c_consent").checked = false;
   
-  // Regresar al paso 1 al resetear (Chunking)
+  // Regresar al paso 1 al limpiar
   changeStep(1);
 }
 
@@ -198,12 +212,13 @@ function setLastAction(){
   state.lastActionAt = Date.now();
 }
 
+// Auto-logout
 function startAutoLogoutWatcher(){
   setInterval(()=>{
     const sec = (Date.now() - state.lastActionAt)/1000;
     if(sec > state.autoLogoutSec){
-      toast("Sesión expirada", "Vuelve a iniciar sesión (se perdieron cambios).");
-      addFriction(12, "Cierre de sesión automático excesivo.");
+      toast("Sesión expirada", "Vuelve a iniciar sesión.");
+      addFriction(12, "Cierre de sesión automático.");
       location.hash = "#dashboard";
       state.lastActionAt = Date.now();
       showModalSurvey(true);
@@ -221,110 +236,99 @@ function init(){
   document.addEventListener("keydown", setLastAction, true);
 
   $("#btnLogout").addEventListener("click", ()=>{
-    addFriction(4, "Salir no confirma, genera incertidumbre.");
-    toast("Salir", "Sesión cerrada (¿o no?)");
+    addFriction(4, "Salir no confirma.");
+    toast("Salir", "Sesión cerrada.");
   });
 
   $("#btnHelp").addEventListener("click", ()=>{
-    addFriction(2, "Ayuda genérica e inútil.");
-    toast("Ayuda", "Para resolver errores, contacte a TI (respuesta estándar).");
+    addFriction(2, "Ayuda genérica.");
+    toast("Ayuda", "Contacte a TI.");
   });
 
   $("#btnSync").addEventListener("click", async ()=>{
-    addFriction(3, "Sincronización manual innecesaria.");
+    addFriction(3, "Sync manual.");
     await simulateSlowTask("Sincronizando");
-    toast("Listo", "Sincronización completada (tal vez).");
+    toast("Listo", "Sincronización completada.");
   });
 
   $("#globalSearch").addEventListener("input", (e)=>{
     if(e.target.value.length > 10){
-      addFriction(3, "Búsqueda sin resultados útiles.");
+      addFriction(3, "Búsqueda inútil.");
     }
   });
 
-  // CLIENTES
+  // CLIENTES (Botón Enviar - Ahora es #btnSubmitClient pero estilo Hero)
   rotateCaptcha();
   $("#btnSubmitClient").addEventListener("click", async ()=>{
-    rotateCaptcha(); // Captcha cambia justo al enviar
-    addFriction(4, "Enviar sin guardado automático ni progreso claro.");
+    rotateCaptcha(); 
+    // Bajamos la fricción porque ahora el botón es bueno
+    // addFriction(4, "Enviar..."); 
+    
     await simulateSlowTask("Validando");
 
-    if(randomFail(0.20)){
-      toast("Error 500", "Servidor no disponible. Intente más tarde.");
-      addFriction(8, "Error del sistema sin alternativa.");
+    if(randomFail(0.10)){ // Bajamos probabilidad de fallo para recompensar UX
+      toast("Error 500", "Fallo simulado.");
       return;
     }
 
     const errors = validateClientForm();
     if(errors.length){
-      toast("Error en formulario", errors[0] + " (hay más)");
-      addFriction(5, "Errores encontrados."); // Bajamos fricción aquí porque la validación es mejor
+      toast("Corrija:", errors[0]);
+      // addFriction(5, "Errores...");
       return;
     }
 
-    toast("Éxito", "Cliente enviado. (Saneamiento aplicado).");
-    // "Castigo" aleatorio removido parcialmente por buena UX
-    if(randomFail(0.55)){
-      showModalSurvey(true);
+    toast("Éxito", "Cliente enviado correctamente.");
+    // No mostramos encuesta molesta al tener éxito
+  });
+
+  // CLIENTES (Botón Cancelar - Ahora #btnCancelClient estilo texto)
+  $("#btnCancelClient").addEventListener("click", ()=>{
+    if(confirm("¿Seguro que desea borrar el formulario?")){
+        resetClientFormHard();
+        toast("Cancelado", "Formulario limpio.");
     }
   });
 
-  $("#btnCancelClient").addEventListener("click", ()=>{
-    resetClientFormHard();
-    addFriction(6, "Cancelar borró todo sin confirmación.");
-    toast("Cancelado", "Se borraron datos.");
-  });
-
   $("#btnPrintClient").addEventListener("click", ()=>{
-    addFriction(2, "Acción irrelevante.");
     toast("Imprimir", "Enviando a impresora.");
-  });
-
-  $("#btnHiddenSave").addEventListener("click", async ()=>{
-    await simulateSlowTask("Guardando");
-    toast("Guardado", "Borrador guardado localmente (no es seguro).");
-    state.draft.client = {
-      name: $("#c_name").value,
-      email: $("#c_email").value,
-      notes: $("#c_notes").value
-    };
   });
 
   // OPORTUNIDADES
   $("#btnNewOpp").addEventListener("click", ()=>{
     showModalSurvey(false);
-    toast("Nueva oportunidad", "Función en construcción.");
+    toast("Nueva oportunidad", "En construcción.");
   });
   $("#btnExport").addEventListener("click", async ()=>{
     await simulateSlowTask("Exportando");
-    toast("Exportado", "Archivo generado: reporte.csvv");
+    toast("Exportado", "reporte.csvv generado.");
   });
 
   // CONFIG & REPORTES
   $("#btnApplyConfig").addEventListener("click", ()=>{
     const v = Number($("#autoLogout").value);
     state.autoLogoutSec = v;
-    toast("Configuración aplicada", `Auto-cierre: ${v} segundos.`);
+    toast("Config aplicada", `Auto-cierre: ${v}s.`);
   });
   $("#btnNuke").addEventListener("click", ()=>{
-    toast("Restablecer", "Se restableció TODO.");
+    toast("Restablecer", "Todo borrado.");
     resetClientFormHard();
   });
   $("#btnRunReport").addEventListener("click", async ()=>{
     $("#reportOutput").textContent = "Generando…";
-    await simulateSlowTask("Generando reporte");
-    $("#reportOutput").textContent = "Reporte: Actividad del CRM\n- Datos desactualizados.\n";
+    await simulateSlowTask("Generando");
+    $("#reportOutput").textContent = "Reporte generado (datos falsos).";
   });
   $("#btnRunReport2").addEventListener("click", async ()=>{
-    $("#reportOutput").textContent = "Cargando (lento)…";
-    await new Promise(r=>setTimeout(r, 2500 + Math.random()*2000));
+    $("#reportOutput").textContent = "Cargando…";
+    await new Promise(r=>setTimeout(r, 3000));
     $("#reportOutput").textContent = "Reporte lento finalizado.";
   });
 
   // MODAL
   $("#modalX").addEventListener("click", ()=>{
     hideModalSurvey();
-    toast("Aviso", "Puede que haya perdido cambios.");
+    toast("Aviso", "Cambios perdidos.");
   });
   $("#btnModalLater").addEventListener("click", ()=>{
     hideModalSurvey();
@@ -339,7 +343,7 @@ function init(){
 }
 
 /* =========================================================
-   LÓGICA: CONTROL DE PASOS DEL FORMULARIO (Chunking)
+   MEJORA 1: CONTROL DE PASOS (Chunking)
    ========================================================= */
 
 let currentStep = 1;
@@ -379,6 +383,6 @@ function updateProgressBar(step) {
   });
 }
 
-// Iniciar en el paso 1
+// Iniciar paso 1
 changeStep(1);
 init();
